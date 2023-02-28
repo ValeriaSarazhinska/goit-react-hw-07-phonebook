@@ -4,17 +4,25 @@ import { Filter } from '../Filter/Filter';
 import ContactList from '../ContactList/ContactList';
 import { useDispatch, useSelector } from 'react-redux';
 import css from './App.module.css';
-import { selectContacts } from '../../redux/selectors';
+import { getError, getIsLoading, selectContacts } from '../../redux/selectors';
 import { useEffect } from 'react';
 import { fetchContacts } from '../../redux/operations';
+import { Notify } from 'notiflix';
+import Loader from '../Loader/Loader';
 
 export const App = () => {
   const contacts = useSelector(selectContacts);
+  const loading = useSelector(getIsLoading);
+  const error = useSelector(getError);
   const dispatch = useDispatch();
 
   useEffect(()=>{
     dispatch(fetchContacts())
   },[dispatch])
+
+  useEffect(()=>{
+    if (error) return Notify.failure(`${error}`);
+  },[error])
 
 
   return (
@@ -28,10 +36,11 @@ export const App = () => {
         ) : (
           <div>
             <Filter />
-            <ContactList />
+            {loading ? <Loader/>: <ContactList />}
           </div>
         )}
       </div>
-    </main>
+
+        </main>
   );
 };
